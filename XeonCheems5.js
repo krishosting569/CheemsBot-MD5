@@ -2581,6 +2581,64 @@ case 'tiktokmp3':
 				XeonBotInc.sendMessage(from, { audio: { url: aud.audio }, mimetype: 'audio/mpeg'}, { quoted: m })
 				}
 				break
+				case 'topupff':{
+let idff = text.split("|")[0]
+let totaldm = text.split("|")[1]
+let nopemu = sender.replace("@s.whatsapp.net", "")
+var baseURL = "https://duniagames.co.id";
+var axios = require('axios');
+axios.get(`https://api.lolhuman.xyz/api/freefire/${idff}?apikey=${lolkey}`)
+            .then(({data}) => {
+reply('Tunggu Sebentar Kak, krisBot Akan Cek Id Kakak')
+            })
+            .catch((err) => {
+                reply('Id Atau NickName Tidak Ditemukan!')
+            })
+const topup = async(userId, zoneId, diamond, phone, game) => {
+  if (!userId || !diamond || !phone || !game) return new Error();
+  let cookie = await getCookie(baseURL);
+  if (!cookie) return new Error("empty cookies");
+  let res = await axios.post(`https://api.duniagames.co.id/api/transaction/v1/top-up/inquiry/store?${getVal(diamond, game.toUpperCase())}&gameId=${userId}&product_ref=REG&product_ref_denom=AE`, null, {
+    "headers": { 
+      "cookie": cookie.join(" "),
+      "origin": baseURL,
+      "referer": baseURL
+    }
+  })
+  if (res.status != 200) throw new Error(res.statusText);
+  let res2 = await axios.post(`https://api.duniagames.co.id/api/transaction/v1/top-up/transaction/store?inquiryId=${res.data.data.inquiryId}&phoneNumber=${phone}&transactionId=${res.data.data.transactionId}`, null, {
+    "headers": { 
+      "cookie": cookie.join(" "),
+      "origin": baseURL,
+      "referer": baseURL
+    }
+  })
+if (res2.status != 200) throw new Error(res2.statusText);
+let suksess = `*── 「 TOPUP OTOMATIS 」 ──*
+                
+_Silahkan Scan Qris Dan Transfer Sesuai Harga:_
+_》Harga : Rp${res2.data.data.totalPrice}_
+_》NickName : ${res2.data.data.userGameName}_
+_》Nama Item : ${res.data.data.item.name} ( FreeFire )_
+_》Code Trx : ${res2.data.data.transactionCode}_
+
+_Qr Scan Berlaku 5 Menit, Setelah 5 Menit Pesan Ini Akan Dihapus!._  
+
+_Note: Diamond Akan Otomatis Masuk Dalam 2-3 Menit Setelah Pembayaran Berhasil._`
+let kirimk = await XeonBotInc.sendMessage(m.chat, { image: { url: res2.data.data.elisaConfig.qrCode }, caption: `${suksess}` }, { quoted: m })
+setTimeout(() => {
+XeonBotInc.sendMessage(from, { delete:kirimk.key })
+}, 500000)
+}
+const getCookie = async(...args) => (await axios(...args)).headers["set-cookie"];
+function getVal(dm, game) {
+  let list = JSON.parse(fs.readFileSync("./duniagames.json"));
+  if (!list[game]) return new Error("no game for '" + game + "'");
+  return new URLSearchParams(list[game][dm]).toString();
+}
+let shop = await topup(`${idff}`, null, `${totaldm}`, `${nopemu}`, "freefire")
+}
+break			
 case 'setbio':
 if (!q) throw 'Send orders *#setbio text*'
 XeonBotInc.setStatus(`${q}`)
